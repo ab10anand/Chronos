@@ -9,7 +9,7 @@ var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
 var EventDataCollector = require('./eventDataCollector').EventDataCollector;
-
+var Recommender = require('./recommender').Recommender;
 var app = express();
 
 // all environments
@@ -30,13 +30,21 @@ if ('development' == app.get('env')) {
 }
 
 var eventDataCollector= new EventDataCollector('localhost', 27017);
+var recommender = new Recommender();
 
 app.get('/event/showAll', function(req, res){
 	eventDataCollector.showAll(function(error, result) {
 		res.send(result);
 	});
 });
-		
+
+app.post('/event/recommend', function(req, res) {
+	recommender.getApps({id :req.param('id'), time: req.param('time')}, 
+		function(error, result) {
+			res.send(result);
+		});
+});
+			
 app.post('/event/save', function(req, res){
     eventDataCollector.save({
         id: req.param('id'),
@@ -53,6 +61,8 @@ app.post('/event/save', function(req, res){
 	longitude: req.param('longitude'),
 	latitude: req.param('latitude'),
 	app: req.param('app'),
+	eventType : req.param('eventType'),
+	duration: req.param('duration'),
 	runningAppList: req.param('runningAppList')
     }, function( error, docs) {
         res.send(docs);

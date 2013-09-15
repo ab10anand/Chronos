@@ -1,7 +1,6 @@
 var Db = require('mongodb').Db;
 var Connection = require('mongodb').Connection;
 var Server = require('mongodb').Server;
-var BSON = require('mongodb').BSON;
 var ObjectID = require('mongodb').ObjectID;
 
 EventDataCollector = function (host, port) {
@@ -14,6 +13,18 @@ EventDataCollector.prototype.getCollection= function(callback) {
     if( error ) callback(error);
     else callback(null, event_collection);
   });
+};
+
+EventDataCollector.prototype.findById = function(id, callback) {
+	this.getCollection(function(error, event_collection) {
+		if( error ) callback(error)
+		else {
+			event_collection.find({'id': id}).toArray(function(error, results) {
+				if(error) callback(error)
+				else callback(null, results);
+			});
+		}
+	});
 };
 
 EventDataCollector.prototype.showAll = function(callback) {
