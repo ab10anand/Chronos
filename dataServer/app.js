@@ -39,7 +39,7 @@ app.get('/event/showAll', function(req, res){
 });
 
 app.post('/event/recommend', function(req, res) {
-	recommender.getApps({id :req.param('id'), time: req.param('time')}, 
+	recommender.getApps({id :req.param('id'), time: req.param('time'), mobileData: req.param('mobileData')}, 
 		function(error, result) {
 			res.send(result);
 		});
