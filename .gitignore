@@ -1,3 +1,9 @@
 .classpath
 .project
 .settings
+.metadata
+.class
+*.class
+*.jar
+*bin
+*bin*
