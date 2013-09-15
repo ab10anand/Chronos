@@ -20,20 +20,67 @@ Recommender.prototype.getApps = function(event, callback) {
 };
 
 getAppsByTimeSlot = function(slot, events) {
-	var mostUsed = [];
+	var mostUsed = {};
 	for (var i = 0; i < events.length; i++) {
 		var event = events[i];
 		var date = new Date(event.time);
 		var eventSlot = getTimeSlotOfDay(date);
 		
 		if(eventSlot == slot) {
-			mostUsed.push(event.app);
+			if(mostUsed[event.app]) {
+				mostUsed[event.app] = mostUsed[event.app] + 1;
+			}
+			else {
+				mostUsed[event.app] = 1;
+			}
 		}
 		
 	}
-	return mostUsed;
+	mostUsed = filterList(mostUsed);
+	var appList = sortAppMap(mostUsed);
+	return appList;
 };
-	
+
+function filterList(map){
+	var filterList = ["com.chronos.reco", "com.sec.android.app.launcher"];
+	for(var key in map){
+		if(!isDefined(key) || filterList.indexOf(key) != -1 ){
+			delete map[key];
+		}
+	}
+	return map;
+}
+
+function isDefined(val){
+	if(val == "" || val == " " || val == undefined){
+		return false;
+	}
+	return true;
+}
+
+sortAppMap = function(appMap) {
+	var appList = [];
+	for(var app in appMap) {
+		appList.push({'app' : app, counter: appMap[app]});
+	}
+	console.log(appList);
+	appList.sort(function(a,b) {
+		if(a.counter < b.counter) {
+			return 1;
+		}
+		if(a.counter > b.counter) {
+			return -1;
+		}
+		return 0;
+	});
+	var apps = [];
+	for(var i = 0; i < appList.length; i++) {
+		apps.push(appList[i].app);
+	}
+	console.log(apps);
+	return apps;
+};
+
 getTimeSlotOfDay = function (date) {
 	var hour = date.getHours();
 	if(hour > 5 && hour < 12) 
