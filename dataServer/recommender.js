@@ -9,14 +9,26 @@ Recommender.prototype.getApps = function(event, callback) {
 	var eventDate = new Date(event.time);
 	var slot = getTimeSlotOfDay(eventDate);
 	var id = event.id;
-	console.log("manas:" + id);
-	var events;
+	var connectType = 0;
+	if(event.mobileData)
+		if(event.mobileData == '3g')
+			connectType = 3;
 	eventDataCollector.findById(id, function(error, result) {
-		events = result;
+		var events = result;
 		var appsByTime = getAppsByTimeSlot(slot, events);
-		console.log(appsByTime);
-		callback(null, appsByTime)
+		var appsByConnectivity = getAppsByConnectivity(connectType, events);
+		var allApps = appsByConnectivity.concat(appsByTime);
+		console.log(allApps);
+		callback(null, allApps)
 	});
+};
+
+getAppsByConnectivity = function(connectType, events) {
+	var apps = [];
+	if(connectType == 3) {
+		apps.push('com.google.android.apps.maps');
+	}
+	return apps;
 };
 
 getAppsByTimeSlot = function(slot, events) {
@@ -38,11 +50,15 @@ getAppsByTimeSlot = function(slot, events) {
 	}
 	mostUsed = filterList(mostUsed);
 	var appList = sortAppMap(mostUsed);
+	if(slot == 4) {
+		var suggestedNewApp = ['com.amazon.kindle'];
+		appList = suggestedNewApp.concat(appList);
+	}
 	return appList;
 };
 
 function filterList(map){
-	var filterList = ["com.chronos.reco", "com.sec.android.app.launcher"];
+	var filterList = ["com.chronos.reco", "com.sec.android.app.launcher", "com.android.contacts",  "com.android.vending", "com.google.android.gm", "com.android.settings", "null", "com.android.stk", "com.sec.android.app.controlpanel"];
 	for(var key in map){
 		if(!isDefined(key) || filterList.indexOf(key) != -1 ){
 			delete map[key];
